@@ -23,11 +23,17 @@ const userRouter = require("./routes/user.js");
 const { error } = require('console');
 
 // Database connection
-const dbUrl = process.env.ATLASDB_URL; // Load the MongoDB URL from the environment variable
-console.log("Database URL:", dbUrl);
-mongoose.connect(dbUrl, { retryWrites: true, w: "majority" })
+const dbUrl = process.env.ATLASDB_URL; // Ensure this includes the database name
+mongoose.connect(dbUrl, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useCreateIndex: true,
+  useFindAndModify: false,
+  ssl: true, // Ensures SSL is used
+})
   .then(() => console.log("Connected to DB"))
-  .catch(console.error);
+  .catch(err => console.error("Database connection error:", err));
+
 
 // Set up view engine and layout
 app.set("view engine", "ejs");
