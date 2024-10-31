@@ -1,4 +1,5 @@
-require('dotenv').config();  // Load environment variables at the very start
+// Load environment variables at the very start
+require('dotenv').config();
 
 const express = require("express");
 const app = express();
@@ -16,10 +17,17 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const User = require("./models/user.js");
 const session = require("express-session");
-const MongoStore=require("connect-mongo");
+const MongoStore = require("connect-mongo");
 const flash = require("connect-flash");
 const userRouter = require("./routes/user.js");
 const { error } = require('console');
+
+// Database connection
+const dbUrl = process.env.ATLASDB_URL; // Load the MongoDB URL from the environment variable
+console.log("Database URL:", dbUrl);
+mongoose.connect(dbUrl, { retryWrites: true, w: "majority" })
+  .then(() => console.log("Connected to DB"))
+  .catch(console.error);
 
 // Set up view engine and layout
 app.set("view engine", "ejs");
@@ -30,11 +38,20 @@ app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 
 // Configure session and flash
+const store = MongoStore.create({
+  mongoUrl: dbUrl,
+  crypto: {
+    secret: "mysupersecretcode", // Change this to a secure key in production
+  },
+  touchAfter: 24 * 3600,
+});
+
 app.use(
   session({
     secret: "your_secret_key", // Change to a more secure key in production
     resave: false,
     saveUninitialized: false,
+    store: store // Use the MongoDB store for sessions
   })
 );
 app.use(flash());
@@ -54,35 +71,6 @@ app.use((req, res, next) => {
   res.locals.error = req.flash("error");
   next();
 });
-//mongo-store-session
-
-const store=MongoStore.create({
-  mongoUrl:dbUrl,
-  crypto:{
-    secret:"mysupersecretcode",
-  },
-  touchAfter:24*3600,
-})
-
-// Setup session middleware
-app.use(session({
-  secret: 'your-secret-key',
-  resave: false,
-  saveUninitialized: false,
-  store: MongoStore.create({ mongoUrl: dbUrl }), // Use MongoDB store for sessions
-  cookie: { maxAge: 180 * 60 * 1000 } // 3 hours
-}));
-
-// Database connection
-const dbUrl = process.env.ATLASDB_URL; // Load the MongoDB URL from the environment variable
-
-console.log("Database URL:", dbUrl); // Logging for debugging
-
-// Make sure this is below the dbUrl definition
-mongoose.connect(dbUrl, { retryWrites: true, w: "majority" })
-  .then(() => console.log("Connected to DB"))
-  .catch(console.error);
-
 
 // Middleware to check login and store redirect URL
 function isLoggedIn(req, res, next) {
@@ -136,8 +124,7 @@ app.post(
 );
 
 app.get("/listings/:id", wrapAsync(async (req, res) => {
-  const listing = await Listing.findById(req.params.id)
-    .populate("owner");
+  const listing = await Listing.findById(req.params.id).populate("owner");
 
   if (!listing) {
     req.flash("error", "Listing not found");
@@ -168,8 +155,6 @@ app.delete("/listings/:id", isLoggedIn, wrapAsync(async (req, res) => {
   res.redirect("/listings");
 }));
 
-
-
 // Add User Routes
 app.use("/", userRouter);
 
@@ -188,7 +173,6 @@ app.use((err, req, res, next) => {
 app.listen(port, () => {
   console.log(`Server is listening on http://localhost:${port}`);
 });
-
 
 
 
