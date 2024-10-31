@@ -91,12 +91,16 @@ app.get("/", async (req, res) => {
   const allListings = await Listing.find({}).populate("owner");
   res.render("listings/index", { allListings });
 });
-//logout
-// Example logout route
+
+// Logout route
 app.get('/logout', (req, res) => {
-  // Logic to log out the user
-  req.logout();
-  res.redirect('/'); // Redirect to home or login page after logout
+  req.logout((err) => {
+      if (err) {
+          console.error(err); // Log the error for debugging
+          return res.redirect('/'); // Redirect on error
+      }
+      res.redirect('/login'); // Redirect to login or home after successful logout
+  });
 });
 
 app.get("/listings", async (req, res) => {
