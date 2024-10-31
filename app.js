@@ -64,12 +64,25 @@ const store=MongoStore.create({
   touchAfter:24*3600,
 })
 
+// Setup session middleware
+app.use(session({
+  secret: 'your-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({ mongoUrl: dbUrl }), // Use MongoDB store for sessions
+  cookie: { maxAge: 180 * 60 * 1000 } // 3 hours
+}));
+
 // Database connection
 const dbUrl = process.env.ATLASDB_URL; // Load the MongoDB URL from the environment variable
-console.log("Database URL:", dbUrl);
+
+console.log("Database URL:", dbUrl); // Logging for debugging
+
+// Make sure this is below the dbUrl definition
 mongoose.connect(dbUrl, { retryWrites: true, w: "majority" })
   .then(() => console.log("Connected to DB"))
   .catch(console.error);
+
 
 // Middleware to check login and store redirect URL
 function isLoggedIn(req, res, next) {
