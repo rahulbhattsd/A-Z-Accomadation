@@ -47,41 +47,6 @@ router.post(
   }
 );
 
-// Review Routes
-router.post("/listings/:id/reviews", isLoggedIn, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { rating, comment } = req.body;
-
-    const review = new Review({ 
-      rating, 
-      comment, 
-      user: req.user._id, 
-      listing: id 
-    });
-
-    await review.save();
-
-    // Optionally, you can populate the user data in the review if needed
-    await review.populate('user', 'username').execPopulate();
-
-    res.status(201).json(review); // Respond with the created review
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Unable to create review" });
-  }
-});
-
-router.get("/listings/:id/reviews", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const reviews = await Review.find({ listing: id }).populate('user', 'username').exec();
-    res.json(reviews); // Respond with the list of reviews
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Unable to fetch reviews" });
-  }
-});
 
 // Middleware to check if user is logged in
 function isLoggedIn(req, res, next) {
