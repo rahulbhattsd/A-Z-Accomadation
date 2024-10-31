@@ -27,12 +27,11 @@ const dbUrl = process.env.ATLASDB_URL; // Ensure this includes the database name
 mongoose.connect(dbUrl, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  useCreateIndex: true,
-  useFindAndModify: false,
-  ssl: true, // Ensures SSL is used
+  ssl: true // Ensure SSL is used
 })
   .then(() => console.log("Connected to DB"))
   .catch(err => console.error("Database connection error:", err));
+
 
 
 // Set up view engine and layout
