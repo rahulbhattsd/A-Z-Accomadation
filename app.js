@@ -91,6 +91,13 @@ app.get("/", async (req, res) => {
   const allListings = await Listing.find({}).populate("owner");
   res.render("listings/index", { allListings });
 });
+//logout
+// Example logout route
+app.get('/logout', (req, res) => {
+  // Logic to log out the user
+  req.logout();
+  res.redirect('/'); // Redirect to home or login page after logout
+});
 
 app.get("/listings", async (req, res) => {
   const allListings = await Listing.find({}).populate("owner");
