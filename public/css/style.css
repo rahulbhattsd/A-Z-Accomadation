@@ -1,0 +1,439 @@
+/* Container for all cards */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem; /* Spacing between cards */
+    justify-content: space-between; /* Evenly distribute cards in each row */
+}
+
+/* Style for the card */
+.listing-card {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Slight shadow for depth */
+    border: none;
+    border-radius: 15px; /* Rounded corners for aesthetic look */
+    overflow: hidden; /* Ensure content stays within the card */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative; /* Needed for z-index and hover effects */
+    z-index: 1; /* Ensures hover effects aren't blocked */
+}
+
+/* Hover effect for the card */
+.listing-card:hover {
+    transform: translateY(-8px); /* Lift effect on hover */
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2); /* Stronger shadow when hovered */
+}
+
+/* Dark mode specific styles for the card */
+body.dark-mode .listing-card {
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2); /* White shadow for dark mode */
+}
+
+/* Style for the card image */
+.card-img-top {
+    object-fit: cover;
+    width: 100%;
+    height: 300px; /* Fixed height for uniformity */
+    transition: transform 0.3s ease, opacity 0.3s ease; /* Smooth transitions */
+}
+
+/* Image hover zoom and dim effect */
+.listing-card:hover .card-img-top {
+    transform: scale(1.05); /* Slight zoom on hover */
+    opacity: 0.9; /* Slight dimming on hover */
+}
+
+/* Style for the card title */
+.card-title {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #333; /* Light mode color */
+}
+
+/* Dark mode specific styles for the card title */
+body.dark-mode .card-title {
+    color: white; /* Change title color to white in dark mode */
+}
+
+/* Style for the card description (text) */
+.card-text {
+    color: #666; /* Light mode color */
+    font-size: 1rem;
+    line-height: 1.4; /* Improve readability */
+    margin-bottom: 0.75rem;
+}
+
+/* Dark mode specific styles for the card description */
+body.dark-mode .card-text {
+    color: #bbb; /* Change description color to a lighter gray in dark mode */
+}
+
+/* Link inside the card */
+.listing-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    height: 100%; /* Ensure link covers the entire card */
+}
+
+/* Style for the card body */
+.card-body {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Ensure 3 cards per row on larger screens */
+@media (min-width: 992px) {
+    .col {
+        flex: 0 0 calc(33.333% - 1.5rem); /* 3 columns with spacing */
+    }
+}
+
+/* Ensure 2 cards per row on medium screens */
+@media (min-width: 768px) and (max-width: 991px) {
+    .col {
+        flex: 0 0 calc(50% - 1.5rem); /* 2 columns on medium screens */
+    }
+}
+
+/* Ensure 1 card per row on small screens */
+@media (max-width: 767px) {
+    .col {
+        flex: 0 0 100%; /* Full width for mobile screens */
+    }
+}
+
+
+/* New EJS style */
+body.new-page {
+    background-color: #f0f4f8; /* Soft light background */
+    font-family: 'Roboto', sans-serif; /* Clean and modern font */
+}
+
+/* Content wrapper styles */
+.content-wrapper {
+    background-color: white; /* Clean white background for form */
+    border-radius: 20px; /* More pronounced rounded corners */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+    padding: 2.5rem; /* Extra padding for a spacious feel */
+    margin-top: 2rem; /* Space above the content */
+    transition: transform 0.3s ease; /* Smooth scaling on hover */
+}
+
+.content-wrapper:hover {
+    transform: scale(1.02); /* Slightly scale up on hover for interaction */
+}
+
+/* Header styles */
+h3 {
+    text-align: center; /* Center the heading */
+    margin-bottom: 1.5rem; /* Space below the heading */
+    color: #333; /* Darker text color for visibility */
+    font-weight: 500; /* Light font weight for modern look */
+}
+
+/* Form label styling */
+.form-label {
+    font-weight: 600; /* Slightly bolder labels for emphasis */
+    color: #555; /* Soft gray color for labels */
+}
+
+/* Form control styling */
+.form-control {
+    border: 1px solid #ced4da; /* Light border for input fields */
+    border-radius: 10px; /* Rounded corners */
+    padding: 0.75rem; /* Padding inside input fields */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions */
+}
+
+/* Focus state styling */
+.form-control:focus {
+    border-color: #007bff; /* Blue border on focus */
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Soft shadow */
+}
+
+/* Button styling */
+.btn {
+    background-color: #007bff; /* Primary button color */
+    color: white; /* White text for buttons */
+    width: auto; /* Auto width for the button */
+    padding: 0.5rem 1rem; /* Adjust padding to reduce button size */
+    border-radius: 10px; /* Rounded corners */
+    font-weight: bold; /* Bold text */
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transitions */
+    display: inline-block; /* Inline-block for proper sizing */
+}
+
+/* Button hover effect */
+.btn:hover {
+    background-color: #0056b3; /* Darker shade on hover */
+    transform: translateY(-2px); /* Lift effect on hover */
+}
+
+/* Adjust the size of the textarea */
+textarea.form-control {
+    height: 100px; /* Set a fixed height for the textarea */
+}
+
+/* Invalid and valid feedback styling */
+.invalid-feedback,
+.valid-feedback {
+    font-size: 0.9rem; /* Smaller text for feedback */
+    margin-top: 0.25rem; /* Space above feedback */
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+    .col-8 {
+        width: 100%; /* Full width on small screens */
+    }
+}
+
+/* Style for the input fields in the same row */
+.row .col-md-4,
+.row .col-md-8 {
+    flex: 0 0 auto !important; /* Prevent columns from stretching */
+}
+
+/* Ensure price and country inputs are on the same row */
+.row.mb-3 {
+    display: flex !important; /* Use flex to align items in the same row */
+}
+
+/* Adjust padding and margin for price and country inputs */
+.row .col-md-4,
+.row .col-md-8 {
+    padding-right: 0.5rem; /* Space between inputs */
+}
+
+/* Style for the Add button */
+.add-btn {
+    padding: 0.5rem 1rem; /* Adjust padding to reduce button size */
+    font-size: 1rem; /* Set font size */
+    border-radius: 5px; /* Slightly rounded corners */
+    transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth transitions */
+}
+
+/* Button hover effect */
+.add-btn:hover {
+    background-color: #5a6268; /* Darker background on hover */
+    transform: scale(1.05); /* Slight scale effect on hover */
+}
+
+/* Navbar */
+.nav-link {
+    color: #333 !important; /* Set a base color for all links */
+    transition: color 0.3s; /* Smooth transition for color */
+}
+
+/* Footer */
+footer {
+    background-color: #343a40; /* Dark background for the footer */
+    color: white; /* White text color for contrast */
+    padding: 2rem 0; /* Padding top and bottom */
+    text-align: center; /* Center align text */
+    margin-top: 10px;
+    padding-top: 10px;
+}
+
+.f-info {
+    max-width: 1200px; /* Maximum width for larger screens */
+    margin: 0 auto; /* Center align on larger screens */
+    padding: 0 1rem; /* Padding on the sides */
+}
+
+.f-info-socials {
+    margin-bottom: 1rem; /* Space below social icons */
+}
+
+.f-info-socials i {
+    font-size: 1.5rem; /* Size of social icons */
+    margin: 0 1rem; /* Space between icons */
+    transition: color 0.3s; /* Smooth color transition */
+}
+
+.f-info-socials i:hover {
+    color: #fa794e; /* Change color on hover */
+}
+
+.p-limit {
+    margin-bottom: 1rem; /* Space below the company name */
+    font-weight: 400; /* Normal weight */
+}
+
+.f-info-links {
+    margin-top: 1rem; /* Space above links */
+}
+
+.f-info-links a {
+    color: white; /* Link color */
+    text-decoration: none; /* No underline */
+    margin: 0 1rem; /* Space between links */
+    transition: color 0.3s; /* Smooth color transition */
+}
+
+.f-info-links a:hover {
+    color: #fa794e; /* Change color on hover */
+}
+
+/* Dark Mode Styles */
+:root {
+    --background-color: #f0f4f8; /* Light background */
+    --card-background-color: #ffffff; /* Light card background */
+    --text-color: #333; /* Light text color */
+    --secondary-text-color: #666; /* Light secondary text color */
+    --link-color: #007bff; /* Light link color */
+    --hover-bg-color: #f0f0f0; /* Light hover background */
+    --footer-bg-color: #343a40; /* Dark footer background */
+    --footer-text-color: white; /* Footer text color */
+}
+
+body {
+    background-color: var(--background-color);
+    font-family: 'Roboto', sans-serif;
+}
+
+/* Dark Mode Styles */
+body.dark-mode {
+    --background-color: #121212; /* Dark background */
+    --card-background-color: #1e1e1e; /* Dark card background */
+    --text-color: #ffffff; /* Dark text color */
+    --secondary-text-color: #bbb; /* Dark secondary text color */
+    --link-color: #ffa726; /* Dark link color */
+    --hover-bg-color: #424242; /* Dark hover background */
+    --footer-bg-color: #1c1c1c; /* Dark footer background */
+    --footer-text-color: #f5f5f5; /* Dark footer text color */
+}
+
+.card {
+    background-color: var(--card-background-color);
+    color: var(--text-color);
+}
+
+.card-title {
+    color: var(--text-color);
+}
+
+.card-text {
+    color: var(--secondary-text-color);
+}
+
+.nav-link {
+    color: var(--text-color);
+}
+
+footer {
+    background-color: var(--footer-bg-color);
+    color: var(--footer-text-color);
+}
+
+.btn {
+    background-color: #5f5d5d; /* Primary button color */
+    color: white; /* White text for buttons */
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.btn:hover {
+    background-color: #080808; /* Darker shade on hover */
+}
+
+/* Responsive styles for input fields and buttons */
+.form-control,
+.btn {
+    border-radius: 10px; /* Ensure consistent border radius */
+}
+
+.add-btn {
+    border-radius: 5px; /* Ensure rounded corners */
+}
+
+/* Ensure uniformity across text and other elements */
+.text-white {
+    color: white; /* Ensure white text where necessary */
+}
+
+/* Ensure margin and padding are responsive */
+@media (max-width: 576px) {
+    .col {
+        flex: 0 0 100%; /* Full width on small screens */
+    }
+}
+
+/* Wrapper to ensure footer sticks to the bottom */
+html, body {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    flex: 1; /* Fills remaining space to push footer to bottom */
+}
+
+footer {
+    background-color: var(--footer-bg-color);
+    color: var(--footer-text-color);
+    padding: 15px 0;
+    text-align: center;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.f-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Social icons */
+.f-info-socials i {
+    font-size: 24px;
+    margin: 0 8px;
+    color: var(--footer-text-color); /* Adjusts color to match footer theme */
+    cursor: pointer;
+}
+
+.f-info-socials i:hover {
+    color: #ccc; /* Lighten on hover */
+}
+
+/* Company name */
+.p-limit {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* Links styling */
+.f-info-links a {
+    color: var(--footer-text-color);
+    text-decoration: none;
+    margin: 0 5px;
+}
+
+.f-info-links a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+    .f-info {
+        text-align: center;
+    }
+
+    .f-info-socials i {
+        margin: 0 5px;
+    }
+
+    .f-info-links a {
+        margin: 0 3px;
+    }
+}
+.rounded-circle{
+
+    margin: 10px;
+}
