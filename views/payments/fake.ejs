@@ -1,0 +1,73 @@
+<!-- views/payments/fake.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fake Razorpay Payment</title>
+  <style>
+    .checkout-container {
+      width: 100%;
+      max-width: 400px;
+      background: #f4f6f8;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0 auto;
+      padding: 0;
+      display: flex;
+      height: 100vh;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .checkout-card {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      width: 100%;
+    }
+
+    .checkout-card h2 {
+      margin-bottom: 1rem;
+      color: #1a1a1a;
+    }
+
+    .checkout-card p {
+      margin: 0.5rem 0;
+      color: #555;
+    }
+
+    .pay-button {
+      margin-top: 1.5rem;
+      padding: 12px 24px;
+      background: #0d47a1;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .pay-button:hover {
+      background: #1565c0;
+    }
+  </style>
+</head>
+<body>
+  <div class="checkout-container">
+    <div class="checkout-card">
+      <h2>Confirm Your Payment</h2>
+      <p><strong>Amount:</strong> ₹<%= amount.toLocaleString('en-IN') %></p>
+      <p><strong>Product:</strong> <%= title %></p>
+
+   <form action="/fake-payment-success" method="POST">
+  <input type="hidden" name="amount" value="<%= amount %>">
+  <input type="hidden" name="title" value="<%= title %>">
+  <input type="hidden" name="username" value="<%= username %>">
+  <button class="btn btn-success">Confirm Payment</button>
+</form>
+    </div>
+  </div>
+</body>
+</html>

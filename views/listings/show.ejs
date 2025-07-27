@@ -7,11 +7,15 @@
       <img src="<%= listing.image.url %>" class="card-img-top show-img" alt="listing-image" />
       <div class="card-body">
         <p class="card-text">
-          This is the owner: <%= listing.owner.username %><br />
+          <strong>Owner:</strong> <%= listing.owner.username %><br />
           <%= listing.description %><br />
-          <%= listing.price ? listing.price.toLocaleString("en-IN") : 'Price not available' %><br />
+          <strong>Price:</strong> ₹<%= listing.price.toLocaleString("en-IN") %><br />
           <%= listing.location %><br />
-          <%= listing.country %>
+          <%= listing.country %><br />
+
+          <% if (listing.isBooked) { %>
+            <span class="badge bg-danger">🔒 Booked by <%= listing.bookedBy?.username || "someone" %></span>
+          <% } %>
         </p>
 
         <% if (currentUser && currentUser._id.toString() === listing.owner._id.toString()) { %>
@@ -21,15 +25,18 @@
               <button class="btn delete-btn btn-sm">Delete</button>
             </form>
           </div>
+        <% } else if (!listing.isBooked) { %>
+          <form method="GET" action="/listings/<%= listing._id %>/book">
+            <button class="btn btn-success w-100 mt-2">Book Now</button>
+          </form>
         <% } else { %>
-          <p class="text-center text-danger">You do not have permission to edit or delete this listing.</p>
+          <p class="text-center text-danger">This listing has already been booked.</p>
         <% } %>
       </div>
     </div>
   </div>
-
-
 </body>
+
 
 
 

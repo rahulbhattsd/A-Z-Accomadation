@@ -1,197 +1,200 @@
-// Load environment variables at the very start
 require('dotenv').config();
 
-const express = require("express");
-const app = express();
-const port = 8080;
-const mongoose = require("mongoose");
-const Listing = require("./models/listing.js");
-const path = require("path");
-const methodOverride = require("method-override");
-const ejsMate = require("ejs-mate");
-const expressLayouts = require("express-ejs-layouts");
-const wrapAsync = require("./utils/wrapAsync.js");
-const ExpressError = require("./utils/ExpressError.js");
+const express         = require("express");
+const app             = express();
+const port            = process.env.PORT || 8080;
+const mongoose        = require("mongoose");
+const methodOverride  = require("method-override");
+const expressLayouts  = require("express-ejs-layouts");
+const wrapAsync       = require("./utils/wrapAsync.js");
+const ExpressError    = require("./utils/ExpressError.js");
 
-const passport = require("passport");
-const LocalStrategy = require("passport-local");
-const User = require("./models/user.js");
-const session = require("express-session");
-const MongoStore = require("connect-mongo");
-const flash = require("connect-flash");
-const userRouter = require("./routes/user.js");
-const { error } = require('console');
+const passport        = require("passport");
+const LocalStrategy   = require("passport-local");
+const User            = require("./models/user.js");
+const session         = require("express-session");
+const MongoStore      = require("connect-mongo");
+const flash           = require("connect-flash");
 
-// Database connection
-const dbUrl = process.env.ATLASDB_URL; // Ensure this includes the database name
-mongoose.connect(dbUrl, {
- 
-  ssl: true // Ensure SSL is used
-})
+const Listing         = require("./models/listing.js");
+const userRouter      = require("./routes/user.js");
+const bookingRouter   = require("./routes/bookings.js");  // ↖ booking routes
+
+// 1) Database connection
+mongoose.connect(process.env.ATLASDB_URL, { ssl: true })
   .then(() => console.log("Connected to DB"))
   .catch(err => console.error("Database connection error:", err));
 
-
-
-// Set up view engine and layout
+// 2) View engine + static + parsing
 app.set("view engine", "ejs");
 app.use(expressLayouts);
 app.set("layout", "layouts/boilerplate");
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
-
-// Configure session and flash
-const store = MongoStore.create({
-  mongoUrl: dbUrl,
-  crypto: {
-    secret: "mysupersecretcode", // Change this to a secure key in production
-  },
-  touchAfter: 24 * 3600,
-});
-
-app.use(
-  session({
-    secret: "your_secret_key", // Change to a more secure key in production
-    resave: false,
-    saveUninitialized: false,
-    store: store // Use the MongoDB store for sessions
-  })
-);
-app.use(flash());
 app.use(express.json());
 
-// Passport setup
+// 3) Session & Flash
+const store = MongoStore.create({
+  mongoUrl: process.env.ATLASDB_URL,
+  crypto: { secret: process.env.SESSION_SECRET || "your_secret" },
+  touchAfter: 24 * 3600
+});
+app.use(session({
+  secret: process.env.SESSION_SECRET || "your_secret",
+  resave: false,
+  saveUninitialized: false,
+  store
+}));
+app.use(flash());
+
+// 4) Passport
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-// Global Middleware to add flash messages and user information
+// 5) Global middleware for flash & user
 app.use((req, res, next) => {
   res.locals.currentUser = req.user || null;
-  res.locals.success = req.flash("success");
-  res.locals.error = req.flash("error");
+  res.locals.success     = req.flash("success");
+  res.locals.error       = req.flash("error");
   next();
 });
 
-// Middleware to check login and store redirect URL
+// 6) Auth check helper
 function isLoggedIn(req, res, next) {
-  if (req.isAuthenticated()) {
-    return next();
-  }
+  if (req.isAuthenticated()) return next();
   req.session.redirectUrl = req.originalUrl;
-  req.flash("error", "You must be logged in to access this page.");
+  req.flash("error", "You must be logged in to access that.");
   res.redirect("/login");
 }
 
-// Route Handlers
-app.get("/", async (req, res) => {
+// 7) Routes
+app.use("/", userRouter);
+app.use("/listings", bookingRouter);         // ↖ mount booking routes under /listings
+
+// --- Your existing Listing CRUD routes ---
+app.get("/", wrapAsync(async (req, res) => {
   const allListings = await Listing.find({}).populate("owner");
   res.render("listings/index", { allListings });
-});
+}));
 
-// Logout route
-app.get('/logout', (req, res) => {
-  req.logout((err) => {
-      if (err) {
-          console.error(err); // Log the error for debugging
-          return res.redirect('/'); // Redirect on error
-      }
-      res.redirect('/login'); // Redirect to login or home after successful logout
-  });
-});
+app.get("/home", wrapAsync(async (req, res) => {
+  const allListings = await Listing.find({}).populate("owner");
+  res.render("listings/home", { allListings });
+}));
 
-app.get("/listings", async (req, res) => {
+app.get("/listings", wrapAsync(async (req, res) => {
   const allListings = await Listing.find({}).populate("owner");
   res.render("listings/index", { allListings });
-});
+}));
 
 app.get("/listings/new", isLoggedIn, (req, res) => {
   res.render("listings/new");
 });
 
-app.post(
-  "/listings",
-  isLoggedIn,
-  wrapAsync(async (req, res) => {
-    try {
-      const listingData = {
-        ...req.body.listing,
-        owner: req.user._id,
-        image: {
-          url: req.body.listing.image || 'default-image-url',
-        },
-      };
-      const listing = new Listing(listingData);
-      await listing.save();
-      req.flash("success", "Listing created successfully!");
-      res.redirect("/listings");
-    } catch (error) {
-      if (error.name === "ValidationError") {
-        req.flash("error", Object.values(error.errors).map(e => e.message).join(", "));
-        return res.redirect("/listings/new");
-      }
-      throw error;
-    }
-  })
-);
+app.post("/listings", isLoggedIn, wrapAsync(async (req, res) => {
+  const listing = new Listing({ ...req.body.listing, owner: req.user._id });
+  await listing.save();
+  req.flash("success", "Listing created!");
+  res.redirect("/listings");
+}));
 
 app.get("/listings/:id", wrapAsync(async (req, res) => {
   const listing = await Listing.findById(req.params.id).populate("owner");
-
-  if (!listing) {
-    req.flash("error", "Listing not found");
-    return res.redirect("/listings");
-  }
+  if (!listing) throw new ExpressError(404, "Listing not found");
   res.render("listings/show", { listing });
 }));
 
-app.get("/listings/:id/edit", isLoggedIn, async (req, res) => {
-  const listing = await Listing.findById(req.params.id).populate("owner");
-  if (!listing) {
-    req.flash("error", "Listing not found");
-    return res.redirect("/listings");
-  }
+app.get("/listings/:id/edit", isLoggedIn, wrapAsync(async (req, res) => {
+  const listing = await Listing.findById(req.params.id);
+  if (!listing) throw new ExpressError(404, "Listing not found");
   res.render("listings/edit", { listing });
-});
+}));
 
 app.put("/listings/:id", isLoggedIn, wrapAsync(async (req, res) => {
-  const { id } = req.params;
-  const listing = await Listing.findByIdAndUpdate(id, req.body.listing);
-  req.flash("success", "Listing Updated!");
-  res.redirect(`/listings/${listing._id}`);
+  await Listing.findByIdAndUpdate(req.params.id, req.body.listing);
+  req.flash("success", "Listing updated!");
+  res.redirect(`/listings/${req.params.id}`);  // ← fixed back-ticks
 }));
 
 app.delete("/listings/:id", isLoggedIn, wrapAsync(async (req, res) => {
   await Listing.findByIdAndDelete(req.params.id);
-  req.flash("success", "Listing Deleted!");
+  req.flash("success", "Listing deleted!");
   res.redirect("/listings");
 }));
 
-// Add User Routes
-app.use("/", userRouter);
+app.get("/logout", (req, res) => {
+  req.logout(err => {
+    if (err) console.error(err);
+    res.redirect("/login");
+  });
+});
+// Booking route (fake Razorpay style)
+app.post("/listings/:id/book", async (req, res) => {
+  const { id } = req.params;
+  const listing = await Listing.findById(id);
 
-// Error handling for undefined routes
-app.all("*", (req, res, next) => {
+  if (!listing) {
+    req.flash("error", "Listing not found.");
+    return res.redirect("/listings");
+  }
+
+  if (listing.isBooked) {
+    req.flash("error", "This listing is already booked.");
+    return res.redirect(`/listings/${id}`);
+  }
+
+  // Mark as booked
+  listing.isBooked = true;
+  listing.bookedBy = req.user._id;
+  await listing.save();
+
+  const platformFee = Math.round(listing.price * 0.1);
+  const totalAmount = listing.price + platformFee;
+
+  const username = req.user.username;
+
+  res.redirect(`/payments?amount=${totalAmount}&title=${encodeURIComponent(listing.title)}&username=${encodeURIComponent(username)}`);
+});
+
+// Payment page render
+app.get("/payments", (req, res) => {
+  const { amount, title, username } = req.query;
+  res.render("payments/fake", {
+    amount: parseInt(amount),
+    title,
+    username,
+  });
+});
+
+// Fake success handler
+app.post("/fake-payment-success", (req, res) => {
+  const { amount, title, username } = req.body;
+  res.send(`
+    <h2>✅ Payment of ₹${parseInt(amount).toLocaleString('en-IN')} for "${title}" was successful!</h2>
+    <h3>📦 Booked by <strong>${username}</strong></h3>
+  `);
+});
+
+
+// 8) 404 handler
+app.use((req, res, next) => {
   next(new ExpressError(404, "Page Not Found"));
 });
 
-// General error handling middleware
+// 9) General error handler
 app.use((err, req, res, next) => {
   const { statusCode = 500, message = "Something went wrong" } = err;
   res.status(statusCode).send(message);
 });
 
-// Start the server
+// 10) Start
 app.listen(port, () => {
-  console.log(`Server is listening on http://localhost:${port}`);
+  console.log(`Server running at http://localhost:${port}`);
 });
-
-
-
-
 
 
 
