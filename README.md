@@ -152,15 +152,4 @@ Developed by [rahulbhattsd](https://github.com/rahulbhattsd).
 
 
 
----
 
-## ✨ Icons & Branding
-
-All icons and images are either open-source (Flaticon, Unsplash) or custom-designed for this project.
-
----
-
-## 📢 Feedback
-
-Want to suggest a feature or report a bug?  
-[Open an issue](https://github.com/rahulbhattsd/A-Z-Accomadation/issues)
