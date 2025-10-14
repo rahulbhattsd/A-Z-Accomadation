@@ -144,9 +144,11 @@ This project is licensed under the MIT License.
 
 ---
 
-## 🙏 Credits
 
-Developed by [rahulbhattsd](https://github.com/rahulbhattsd).
+## 👤 Developer
+**Rahul Bhatt**  
+[LinkedIn](https://www.linkedin.com/in/rahulbhatt-developer)
+
 
 ---
 
