@@ -21,7 +21,7 @@ const userRouter      = require("./routes/user.js");
 const bookingRouter   = require("./routes/bookings.js");  // ↖ booking routes
 
 // 1) Database connection
-mongoose.connect(process.env.ATLASDB_URL, { ssl: true })
+mongoose.connect(process.env.ATLASDB_URL, { ssl: true,  tls: true, serverSelectionTimeoutMS: 5000, })
   .then(() => console.log("Connected to DB"))
   .catch(err => console.error("Database connection error:", err));
 
